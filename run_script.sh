@@ -16,14 +16,14 @@ source "$virtual_env_path"
 target_lang="tam"
 
 output_audio_segments_path="$script_dir/TTS_AUDIO"
-final_output_file_path="$script_dir/final_output_vedios"
+final_output_file_path="$script_dir/final_output_videos"
 
 srt_folderpath="$script_dir/Translated_SRT"
 
-# Original video path by MOHANA MAM
+# Original video path
 original_video_path="$script_dir/OrigVideo/Week4_Lecture3.mp4"
 
-# Translated SRT path by MOHANA MAM
+# Translated SRT path
 translated_srt_path="$script_dir/Translated_SRT/Week4_Lecture3_Cleaned_Tagged.ta.srt"
 
 
@@ -46,7 +46,7 @@ echo "location1"
 # Call the Python script for SRT to audio conversion
 python3 "$script_dir/srt_to_audio_original.py" --target_lang "$target_lang" --output_audiopath "$output_audio_segments_path" --srt_folderpath "$srt_folderpath"
 
-# TTS audio directory by MOHANA MAM
+# TTS audio directory
 audio_dir="$output_audio_segments_path/${target_lang}_WAV/$srt_file_name"
 
 echo "audio_dir"
