@@ -12,8 +12,8 @@ This project generates a lip-synced video based on an original video and transla
 1. Clone the repository:
 
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone <repository-url>     #https://github.com/smtiitm/generate_Lipsync_videos.git
+    cd <repository-directory>     #generate_Lipsync_videos
     ```
 
 2. Create and activate the conda environment:
