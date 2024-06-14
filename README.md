@@ -2,6 +2,12 @@
 
 This project generates a lip-synced video based on an original video and translated subtitles.
 
+In general, after translating English text to Indian languages, the audio duration in Indian languages tends to be longer than that of the English version. This discrepancy creates a lag between the video and audio during synthesis. To address this issue and ensure synchronization, we initiated two projects:
+
+Project 1: generate_Lipsync_videos - In this project, we maintained the constant speed of the audio and slowed down the video by interpolating the video frames. This approach ensured proper synchronization between the audio and video, resulting in a video duration longer than the original.
+
+Project 2: [generate_lipsync_videos_with_length_match](https://github.com/smtiitm/generate_lipsync_videos_with_length_match/tree/main) -  This method aimed to maintain synchronization without altering the original video's duration by matching the utterance durations of the English version to the Indian language audio. However, this resulted in inconsistencies in audio speed, with some portions of the synthesized video playing very fast or slow, leading to poor output quality. To maintain audio quality and proper synchronization, we uniformly increased the audio speed based on the video duration requirement and placed it appropriately throughout the video.
+
 ## Prerequisites
 
 - Conda
