@@ -4,7 +4,7 @@
 script_dir="$(dirname "$(realpath "$0")")"
 
 # Set the path to your virtual environment
-virtual_env_path="../envs/cnn_envs/bin/activate"
+# virtual_env_path="../envs/cnn_envs/bin/activate"
 
 # Set your paths and language here (relative to the script's location)
 
@@ -25,7 +25,7 @@ final_output_file_path="$script_dir/final_output_vedios"
 srt_folderpath="$script_dir/Translated_SRT"
 
 # Activate the virtual environment
-source "$virtual_env_path"
+# source "$virtual_env_path"
 
 
 # Extract the original video filename without extension
