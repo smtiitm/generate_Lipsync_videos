@@ -65,7 +65,7 @@ This project generates a lip-synced video based on an original video and transla
 - English (en)
 
 ### Citation
-If you use this Fastspeech2 Model in your research or work, please consider citing:
+If you use this repo in your research or work, please consider citing:
 
 “
 COPYRIGHT
