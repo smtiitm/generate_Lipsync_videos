@@ -14,7 +14,7 @@ import shutil
 
 class Translator:
     def __init__(self, target_lang, output_audiopath, srt_folderpath):
-        self.tts_url = "http://10.24.6.168:3091/vtt-to-speech"
+        self.tts_url = "http://127.0.0.0:3001/vtt_to_speech" #your TTS API URL
         self.output_audiopath = output_audiopath
         self.srt_folderpath = srt_folderpath
         self.target_lang = target_lang
