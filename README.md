@@ -56,6 +56,7 @@ Project 2: [generate_lipsync_videos_with_length_match](https://github.com/smtiit
     ```bash
     ./run_script.sh
     ```
+4. Current supported sampling rate is 22.5KHz and .wav format is preferred.
 
 ## Supported Languages
 
