@@ -1,6 +1,6 @@
 # Lip-Sync Video Generation using gTTS
 
-Clone this Branch: git clone -b lip_sync_online --single-branch https://github.com/smtiitm/generate_Lipsync_videos.git
+Clone this Branch: `git clone -b lip_sync_online --single-branch https://github.com/smtiitm/generate_Lipsync_videos.git`
 
 This project generates a lip-synced video based on an original video and translated subtitles.
 
