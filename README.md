@@ -80,7 +80,7 @@ If you use this repo in your research or work, please consider citing:
 
 “
 COPYRIGHT
-2024, Speech Technology Consortium,
+2025, Speech Technology Consortium,
 
 Bhashini, MeiTY and by Hema A Murthy & S Umesh,
 
