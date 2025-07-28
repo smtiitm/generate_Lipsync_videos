@@ -36,7 +36,8 @@ Project 2: [generate_lipsync_videos_with_length_match](https://github.com/smtiit
     ```bash
     pip install -r requirements.txt
     ```
-4. Currently the code uses our APIs for text-to-speech generation. You can use your own TTS API (make sure to use the correct payload given in `vtt_to_speech.py` file) URL in `srt_to_audio_original` file. The current APIs are local to the lab and can be requested via mail.
+4. Currently the code uses gTTS APIs for text-to-speech generation. You can use your own TTS API (make sure to use the correct payload given in `vtt_to_speech.py` file) URL in `srt_to_audio_original` file.
+
      
 ## Usage
 
