@@ -6,152 +6,127 @@ import os
 import sys
 import moviepy.editor as mp
 from pysrt import SubRipFile, SubRipTime, SubRipItem
+from pydub import AudioSegment
+from tqdm import tqdm
 import argparse
+import logging
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-def srt_time_to_seconds(time_datetime_format):
-    time_iso_format = time_datetime_format.isoformat()
-    # print(time_iso_format)
-    seconds = float(time_iso_format.split(':')[-1])
-    rest_list = time_iso_format.split(':')[:-1]
-    # print(rest_list)
-    if ":".join(rest_list) == "00:00":
-        pass
+def srt_time_to_seconds(time_obj):
+    # Handles both pysrt.SubRipTime and datetime.time
+    if hasattr(time_obj, 'hours'):
+        return (
+            time_obj.hours * 3600 +
+            time_obj.minutes * 60 +
+            time_obj.seconds +
+            time_obj.milliseconds / 1000.0
+        )
     else:
-        for i in range(0,len(rest_list)):
-            if i == 0:
-                # print(rest_list[i])
-                seconds += int(rest_list[i])*3600
-            elif i == 1:
-                # print(rest_list[i])
-                seconds += int(rest_list[i])*60
-            else:
-                sys.exit("Error in time conversion")
-    return seconds
+        return (
+            time_obj.hour * 3600 +
+            time_obj.minute * 60 +
+            time_obj.second +
+            time_obj.microsecond / 1_000_000.0
+        )
+
+
+def segment_audio(full_audio_path, srt_file, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    full_audio = AudioSegment.from_file(full_audio_path)
+    srt = SubRipFile.open(srt_file)
+    audio_paths = []
+
+    logging.info("Segmenting audio based on SRT...")
+    for i, entry in enumerate(tqdm(srt, desc="Segmenting")):
+        start_ms = int(srt_time_to_seconds(entry.start) * 1000)
+        end_ms = int(srt_time_to_seconds(entry.end) * 1000)
+        segment = full_audio[start_ms:end_ms]
+        segment_path = os.path.join(output_dir, f"segment_{i+1:03d}.mp3")
+        segment.export(segment_path, format="mp3")
+        audio_paths.append(segment_path)
+
+    return audio_paths
 
 def lip_sync(video_path, srt_path, audio_list, output_video, output_srt):
-
-    # output video filename without extension
     output_filename = os.path.splitext(output_video)[0]
-
-    # read the original video as obj
     video_obj = mp.VideoFileClip(video_path)
-
-    # read target srt file
     srt = SubRipFile.open(srt_path)
 
-    # initialize variables
     video_clips = []
-
     prev_end_time = SubRipTime(0)
-
     new_srt_start_time = []
     new_srt_end_time = []
     new_srt_total_duration = 0.0
 
-    # iterate through srt entries
-    for i, srt_entry in enumerate(srt):
-        
-        print(f"srt_num: {i+1}")
+    for i, entry in enumerate(tqdm(srt, desc="Generating video segments")):
+        logging.info(f"Processing subtitle #{i+1}")
 
-        start_time = srt_entry.start.to_time()
-        end_time = srt_entry.end.to_time()
+        start = entry.start.to_time()
+        end = entry.end.to_time()
 
-        if srt_time_to_seconds(start_time) > srt_time_to_seconds(prev_end_time.to_time()):
-            # add inter-srt clip to video_clips
-            inter_srt_clip = video_obj.subclip(srt_time_to_seconds(prev_end_time.to_time()), srt_time_to_seconds(start_time))
-            inter_srt_clip_without_audio = inter_srt_clip.without_audio()
-            # Create a silent audio clip with the same duration as the video
-            silence = mp.afx.audio_loop(mp.AudioFileClip("silence.wav"), duration=(srt_time_to_seconds(start_time) - srt_time_to_seconds(prev_end_time.to_time())), nloops=1)
-            # Set the silent audio track in the video clip
-            inter_srt_clip_with_silence = inter_srt_clip_without_audio.set_audio(silence)
-            video_clips.append(inter_srt_clip_with_silence)
+        if srt_time_to_seconds(start) > srt_time_to_seconds(prev_end_time.to_time()):
+            inter_clip = video_obj.subclip(srt_time_to_seconds(prev_end_time.to_time()), srt_time_to_seconds(start)).without_audio()
+            silence = mp.afx.audio_loop(mp.AudioFileClip("silence.wav"), duration=inter_clip.duration)
+            video_clips.append(inter_clip.set_audio(silence))
+            new_srt_total_duration += inter_clip.duration
 
-            new_srt_total_duration += inter_srt_clip_with_silence.duration
-
-        srt_clip = video_obj.subclip(srt_time_to_seconds(start_time), srt_time_to_seconds(end_time))
-        srt_clip_without_audio = srt_clip.without_audio()
-        video_clips.append(srt_clip_without_audio)
-      
-        # read audio file
+        srt_clip = video_obj.subclip(srt_time_to_seconds(start), srt_time_to_seconds(end)).without_audio()
         audio_clip = mp.AudioFileClip(audio_list[i])
-        
-        # interpolate video to match audio duration
+
         if srt_clip.duration != audio_clip.duration:
-            
             srt_clip = srt_clip.fx(mp.vfx.speedx, factor=srt_clip.duration/audio_clip.duration)
-          
-            srt_clip_without_audio = srt_clip.without_audio()
 
-        # replace audio in video clip
-        video_clip = srt_clip.set_audio(audio_clip)
-
+        final_clip = srt_clip.set_audio(audio_clip)
+        video_clips.append(final_clip)
         new_srt_start_time.append(new_srt_total_duration)
-        new_srt_end_time.append(new_srt_total_duration+video_clip.duration)
+        new_srt_end_time.append(new_srt_total_duration + final_clip.duration)
+        new_srt_total_duration += final_clip.duration
 
-        new_srt_total_duration += video_clip.duration
+        prev_end_time = entry.end
 
-        # add video clip to list
-        video_clips[-1] = video_clip
+    if srt_time_to_seconds(srt[-1].end.to_time()) < video_obj.duration:
+        final_clip = video_obj.subclip(srt_time_to_seconds(srt[-1].end.to_time()), video_obj.duration).without_audio()
+        silence = mp.afx.audio_loop(mp.AudioFileClip("silence.wav"), duration=final_clip.duration)
+        video_clips.append(final_clip.set_audio(silence))
 
-        # update previous end time
-        prev_end_time = srt_entry.end
-
-
-    # check if last srt ends before video ends and add final clip if necessary
-    last_srt_end_time = srt[-1].end.to_time()
-    video_duration = video_obj.duration
-    
-    print("Completed for loop")
-    try:
-        if last_srt_end_time != video_duration:
-            final_clip = video_obj.subclip(srt_time_to_seconds(last_srt_end_time), video_duration)
-            final_clip_without_audio = final_clip.without_audio()
-            # Create a silent audio clip with the same duration as the video
-            silence = mp.afx.audio_loop(mp.AudioFileClip("silence.wav"), duration=(video_duration - srt_time_to_seconds(last_srt_end_time)), nloops=1)
-            final_clip_with_silence = final_clip_without_audio.set_audio(silence)
-            video_clips.append(final_clip_with_silence)
-            # video_clips.append(final_clip_without_audio)
-    except:
-        print("Except")
-    
-    print("try , except completed here. check here error is there or not")
-    # concatenate video clips and write final video
+    logging.info("Concatenating video segments...")
     final_video = mp.concatenate_videoclips(video_clips)
-    # final_video.write_videofile("output_video.mp4", threads=30)
-    final_video.write_videofile(output_video,  codec="libx264", threads=30, audio_codec='aac', temp_audiofile=output_filename+'.m4a', remove_temp=True, preset="medium", ffmpeg_params=["-profile:v","baseline", "-level","3.0","-pix_fmt", "yuv420p"])
+    final_video.write_videofile(
+        output_video,
+        codec="libx264",
+        threads=30,
+        audio_codec='aac',
+        temp_audiofile=output_filename+'.m4a',
+        remove_temp=True,
+        preset="medium",
+        ffmpeg_params=["-profile:v", "baseline", "-level", "3.0", "-pix_fmt", "yuv420p"]
+    )
 
-    # create new srt file with updated timings
+    logging.info("Writing updated SRT timings...")
     new_srt = SubRipFile()
-    for i, srt_entry in enumerate(srt):
-        new_start_time = SubRipTime(seconds=new_srt_start_time[i])
-        new_end_time = SubRipTime(seconds=new_srt_end_time[i])
-        new_srt.append(SubRipItem(index=i+1, start=new_start_time, end=new_end_time, text=srt_entry.text))
-
-    # Write the updated srt file to file
+    for i, entry in enumerate(srt):
+        new_srt.append(SubRipItem(
+            index=i+1,
+            start=SubRipTime(seconds=new_srt_start_time[i]),
+            end=SubRipTime(seconds=new_srt_end_time[i]),
+            text=entry.text
+        ))
     new_srt.save(output_srt, encoding='utf-8')
-    
+    logging.info("Lip sync video generation complete.")
+
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Lip syncing script with command-line arguments.")
-    parser.add_argument("--original_video_path", required=True, help="Path to the original video file.")
-    parser.add_argument("--Translated_SRT", required=True, help="Path to the translated SRT file.")
-    parser.add_argument("--audio_dir", required=True, help="Path to the directory containing TTS audio files.")
-    parser.add_argument("--output_video_path", required=True, help="Path for the output video file.")
-    parser.add_argument("--new_srt_path", required=True, help="Path for the output SRT file.")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--original_video_path", required=True)
+    parser.add_argument("--Translated_SRT", required=True)
+    parser.add_argument("--tts_audio_path", required=True)
+    parser.add_argument("--output_video_path", required=True)
+    parser.add_argument("--new_srt_path", required=True)
+    parser.add_argument("--segmented_audio_dir", default="segmented_audio")
 
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_arguments()
-
-    video_path = args.original_video_path
-    srt_path = args.Translated_SRT
-    audio_dir = args.audio_dir
-    output_video = args.output_video_path
-    output_srt = args.new_srt_path
-
-    audio_list = os.listdir(audio_dir)
-    audio_list.sort()
-    audio_list = [os.path.join(audio_dir, file) for file in audio_list]
-
-    lip_sync(video_path, srt_path, audio_list, output_video, output_srt)
+    segmented_audio = segment_audio(args.tts_audio_path, args.Translated_SRT, args.segmented_audio_dir)
+    lip_sync(args.original_video_path, args.Translated_SRT, segmented_audio, args.output_video_path, args.new_srt_path)

@@ -10,17 +10,17 @@ script_dir="$(dirname "$(realpath "$0")")"
 
 # Target language {'hin':'hindi','mal':'malayalam','kan':'kannada','bn':'bengali','ur':'urdu','tel':'telugu','pun':'punjabi', 'mar':'marathi', 'guj':'gujarati', 'tam':'tamil', 'hin':'hindi','en':'english'}
 
-target_lang="tam"
+target_lang="ta"
 
 # Original video path 
-original_video_path="$script_dir/OrigVideo/Week4_Lecture3.mp4"
+original_video_path="$script_dir/OrigVideo/Week3_Lecture4.mp4"
 
 # Translated SRT path
-translated_srt_path="$script_dir/Translated_SRT/Week4_Lecture3_Cleaned_Tagged.ta.srt"
+translated_srt_path="$script_dir/Translated_SRT/Week3_Lecture4_Cleaned_Tagged.ta.srt"
 
 
 output_audio_segments_path="$script_dir/TTS_AUDIO"
-final_output_file_path="$script_dir/final_output_vedios"
+final_output_file_path="$script_dir/final_output_videos"
 
 srt_folderpath="$script_dir/Translated_SRT"
 
@@ -45,14 +45,19 @@ fi
 # Call the Python script for SRT to audio conversion
 python3 "$script_dir/srt_to_audio_original.py" --target_lang "$target_lang" --output_audiopath "$output_audio_segments_path" --srt_folderpath "$srt_folderpath"
 
-# TTS audio directory
-audio_dir="$output_audio_segments_path/${target_lang}_WAV/$srt_file_name"
+#exit
 
-echo "audio_dir"
+
+
+# TTS audio directory
+audio_dir="$output_audio_segments_path/${target_lang}_WAV/$srt_file_name/$srt_file_name.mp3"
+#audio_dir="$output_audio_segments_path/Week3_Lecture4/Week3_Lecture4_full.wav/${target_lang}_WAV/$srt_file_name/$srt_file_name.mp3"
+#audio_dir="$audio_dir/$audio_dir.mp3" /speech/utkarsh/generate_Lipsync_videos/TTS_AUDIO/Week3_Lecture4/Week3_Lecture4_full.wav/ta_WAV
+echo $audio_dir
 
 #echo "location2"
 # Call the Python lip syncing script with the provided arguments
-python3 "$script_dir/lip_sync_online_v1_original.py" --original_video_path "$original_video_path" --Translated_SRT "$translated_srt_path" --audio_dir "$audio_dir" --output_video_path "$new_video" --new_srt_path "$new_srt"
+python3 "$script_dir/lip_sync_online_v1_original.py" --original_video_path "$original_video_path" --Translated_SRT "$translated_srt_path" --tts_audio_path "$audio_dir" --output_video_path "$new_video" --new_srt_path "$new_srt"
 
 #echo "location3"
 # Run ffmpeg command to convert SRT to ASS to add Subtitle to New Video 

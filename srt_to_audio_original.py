@@ -14,7 +14,8 @@ import shutil
 
 class Translator:
     def __init__(self, target_lang, output_audiopath, srt_folderpath):
-        self.tts_url = "http://127.0.0.0:3001/vtt_to_speech" #your TTS API URL
+        # self.tts_url = "http://127.0.0.1:3001/vtt_to_speech" #your TTS API URL
+        self.tts_url = "http://10.24.6.:3001/vtt_to_speech" #your TTS API URL
         self.output_audiopath = output_audiopath
         self.srt_folderpath = srt_folderpath
         self.target_lang = target_lang
@@ -30,13 +31,14 @@ class Translator:
                 # print('1:',tsv)
                 print("srt_filrpath:",srt_filepath)
                 vtt_filepath, vtt_folderpath= tsv.convert_srt_to_webvtt(srt_filepath)
+                vtt_filepath = f"{vtt_filepath}.vtt"
                 print("vtt_filepath, vtt_folderpath",vtt_filepath, vtt_folderpath)
                 try:
                     tts = TextToSpeechAPI(self.tts_url, self.output_audiopath, srt_filename, self.target_lang, vtt_filepath)
                     tts.text_to_speech()
                 except:
                     print("tts audio was not generated:", srt_filename)
-                # shutil.rmtree(vtt_folderpath)
+                shutil.rmtree(vtt_folderpath)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Translate text files using OneMT API')
