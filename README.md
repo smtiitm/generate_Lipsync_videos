@@ -71,7 +71,7 @@ Project 2: [generate_lipsync_videos_with_length_match](https://github.com/smtiit
 - Punjabi (pun)
 - Marathi (mar)
 - Gujarati (guj)
-- Tamil (tam)
+- Tamil (ta)
 - English (en)
 
 ### Citation
