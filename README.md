@@ -1,4 +1,6 @@
-# Lip-Sync Video Generation using gTTS
+# Lip-Sync Video Generation using gTTS (Google TTS)
+
+## NOTE: There are some changes in this repo. Please use this if you want to use Google TTS (or any other API but make channges appropriately).
 
 Clone this Branch: `git clone -b lip_sync_online --single-branch https://github.com/smtiitm/generate_Lipsync_videos.git`
 
