@@ -16,6 +16,7 @@ import shutil
 
 class Translator:
     def __init__(self, target_lang, output_audiopath, srt_folderpath):
+        ## You can use your TTS URL here or you can get ours from AIKosh or Anuwaadhub
         self.tts_url = "http://127.0.0.0:3001/vtt_to_speech" #your TTS API URL
         self.output_audiopath = output_audiopath
         self.srt_folderpath = srt_folderpath
