@@ -10,7 +10,7 @@ script_dir="$(dirname "$(realpath "$0")")"
 
 # Target language {'hin':'hindi','mal':'malayalam','kan':'kannada','bn':'bengali','ur':'urdu','tel':'telugu','pun':'punjabi', 'mar':'marathi', 'guj':'gujarati', 'tam':'tamil', 'hin':'hindi','en':'english'}
 
-target_lang="tam"
+target_lang="ta"
 
 # Original video path 
 original_video_path="$script_dir/OrigVideo/Week4_Lecture3.mp4"
