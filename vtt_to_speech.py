@@ -10,7 +10,7 @@ class TextToSpeechAPI:
         self.srt_filename = srt_filename
         self.target_lang = target_lang
         self.vtt_filepath= vtt_filepath
-        self.lang_dict = {'hin':'hindi','mal':'malayalam','kan':'kannada','bn':'bengali','ur':'urdu','tel':'telugu','pun':'punjabi', 'mar':'marathi', 'guj':'gujarati', 'tam':'tamil', 'hin':'hindi','en':'english'}
+        self.lang_dict = {'hin':'hindi','mal':'malayalam','kan':'kannada','bn':'bengali','ur':'urdu','tel':'telugu','pun':'punjabi', 'mar':'marathi', 'guj':'gujarati', 'ta':'tamil', 'hin':'hindi','en':'english'}
 
     def text_to_speech(self, alpha=1, gender='male', segmentwise=True):#alpha=0.8333332836627969
 
