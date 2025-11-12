@@ -2,6 +2,8 @@
 Machine Translation to Lipsync
 Created by: Abdullah Mazhar
 Date: 20/02/2023
+Update: Utkarsh Pathak
+Date: 12/11/2025
 '''
 
 import os
